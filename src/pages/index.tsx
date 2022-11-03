@@ -11,7 +11,7 @@ import dayjs from "dayjs";
 
 const Home: NextPage = () => {
   // const hello = trpc.review.reviews.useQuery();
-  const { mutate } = trpc.review.create.useMutation();
+  const { mutate, isLoading } = trpc.review.create.useMutation();
   const { handleSubmit, control } = useForm<CreateReviewInput>({
     resolver: zodResolver(CreateReviewInput),
     defaultValues: {
@@ -65,15 +65,22 @@ const Home: NextPage = () => {
           <Input control={control} name="sweetness_quality" />
           <Input control={control} name="sweetness_quantity" />
         </InputDecorator>
-
-        <button
-          type="submit"
-          className=" max-w-min rounded  bg-sky-800 p-2 px-4"
-        >
-          Submit
-        </button>
+        <SubmitButton isLoading={isLoading} />
       </form>
     </div>
+  );
+};
+
+const SubmitButton = ({ isLoading }: { isLoading: boolean }) => {
+  const displayText = isLoading ? "Saving..." : "Save";
+  return (
+    <button
+      type="submit"
+      className=" max-w-min rounded  bg-sky-800 p-2 px-4"
+      disabled={isLoading}
+    >
+      {displayText}
+    </button>
   );
 };
 
@@ -106,33 +113,26 @@ const Input = ({
 
   const isQuality = name.endsWith("quality");
   const label = isQuality ? "Quality" : "Quantity";
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    return field.onChange(parseInt(e.target.value));
+  };
 
   return (
     <div className="flex flex-col space-y-1">
       <p className="text-lg">{label}</p>
       <div className="flex flex-col justify-start">
         <p className="text-xl">{field.value}</p>
-        <input {...field} type={"range"} min={0} max={10} step={1} />
+        <input
+          {...field}
+          type={"range"}
+          min={0}
+          max={10}
+          step={1}
+          onChange={handleChange}
+        />
       </div>
     </div>
   );
 };
 
 export default Home;
-
-const LoginButton = () => {
-  const { data: session } = useSession();
-
-  if (session) {
-    return (
-      <>
-        <span>
-          {session.user?.name} - {session.user?.email}
-        </span>
-        <button onClick={() => signOut()}>Sign out</button>
-      </>
-    );
-  }
-
-  return <button onClick={() => signIn()}>Sign in</button>;
-};
