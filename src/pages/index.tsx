@@ -6,6 +6,7 @@ import { trpc } from "../utils/trpc";
 import { CreateReviewInput } from "../server/schema/review";
 import dayjs from "dayjs";
 import { SubmitButton } from "../components/SubmitButton";
+import Link from "next/link";
 
 const Home: NextPage = () => {
   const { mutate, isLoading } = trpc.review.create.useMutation();
@@ -104,6 +105,17 @@ const CoffeeQuery = ({
 
   if (isError) {
     return <div>Error</div>;
+  }
+
+  if (data.length === 0) {
+    return (
+      <div>
+        No Coffee -{" "}
+        <Link href="/coffee/new" className="underline">
+          Create One
+        </Link>
+      </div>
+    );
   }
 
   return children(data);
