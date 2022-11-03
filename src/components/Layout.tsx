@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import { signIn, signOut, useSession } from "next-auth/react";
+import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Spinner } from "./Spinner";
@@ -8,22 +9,35 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { status } = useSession();
   if (status === "unauthenticated") {
     return (
-      <div className="flex h-screen flex-col items-center justify-center">
-        <LoginButton />
+      <div>
+        <Head>
+          <title>Coffee Chemist</title>
+        </Head>
+        <div className="flex h-screen flex-col items-center justify-center">
+          <LoginButton />
+        </div>
       </div>
     );
   }
 
   if (status === "loading") {
     return (
-      <div className="flex h-screen flex-col items-center justify-center">
-        <Spinner />
+      <div>
+        <Head>
+          <title>Coffee Chemist</title>
+        </Head>
+        <div className="flex h-screen flex-col items-center justify-center">
+          <Spinner />
+        </div>
       </div>
     );
   }
 
   return (
-    <>
+    <div>
+      <Head>
+        <title>Coffee Chemist</title>
+      </Head>
       <div className="mx-6 mt-5 flex items-center justify-between">
         <div className="space-x-4">
           <ActiveLink href={"/"}>Home</ActiveLink>
@@ -32,7 +46,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <LoginButton />
       </div>
       <div className="container mx-auto">{children}</div>
-    </>
+    </div>
   );
 };
 export default Layout;
