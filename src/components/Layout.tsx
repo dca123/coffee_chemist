@@ -1,6 +1,15 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { status } = useSession();
+  if (status === "unauthenticated") {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center">
+        <LoginButton />
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mt-5 mr-5 flex items-center justify-end space-x-4">
