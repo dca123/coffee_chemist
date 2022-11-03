@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 
 const Reviews: NextPage = () => {
   const { isLoading, isError, data } = trpc.review.reviews.useQuery();
+  // const isLoading = true;
   if (isLoading) {
     return (
       <Layout>
@@ -48,58 +49,30 @@ const LoadingTable = () => {
       <thead>
         <tr>
           <th>
-            <div className="h-2 w-full animate-pulse rounded bg-slate-200" />
+            <div className="h-2 w-full animate-pulse rounded bg-slate-300" />
           </th>
-          <th className="py-3 text-right font-normal">Quality</th>
-          <th className="text-right font-normal">Quantity</th>
+          <th className="py-3 text-right font-normal">
+            <div className="h-2 animate-pulse rounded bg-slate-300" />
+          </th>
+          <th className="pr-2 text-right font-normal">
+            <div className="h-2 animate-pulse rounded bg-slate-300" />
+          </th>
         </tr>
       </thead>
       <tbody>
-        <tr className="bg-red  border-b">
-          <td className="py-1">Acidity</td>
-          <td className="py-1">
-            <div className="float-right h-2 w-1/2 animate-pulse rounded bg-slate-200" />
-          </td>
-          <td className="py-1 pr-2">
-            <div className="float-right h-2 w-1/2 animate-pulse rounded bg-slate-200" />
-          </td>
-        </tr>
-        <tr className="bg-red border-b">
-          <td className="py-1">Aroma</td>
-          <td className="py-1">
-            <div className="float-right h-2 w-1/2 animate-pulse rounded bg-slate-200" />
-          </td>
-          <td className="py-1 pr-2">
-            <div className="float-right h-2 w-1/2 animate-pulse rounded bg-slate-200" />
-          </td>
-        </tr>
-        <tr className="bg-red border-b">
-          <td className="py-1">Sweetness</td>
-          <td className="py-1">
-            <div className="float-right  h-2 w-1/2 animate-pulse rounded bg-slate-200" />
-          </td>
-          <td className="py-1 pr-2">
-            <div className="float-right  h-2 w-1/2 animate-pulse rounded bg-slate-200" />
-          </td>
-        </tr>
-        <tr className="bg-red border-b">
-          <td className="py-1">Body</td>
-          <td className="py-1">
-            <div className="float-right  h-2 w-1/2 animate-pulse rounded bg-slate-200" />
-          </td>
-          <td className="py-1 pr-2">
-            <div className="float-right  h-2 w-1/2 animate-pulse rounded bg-slate-200" />
-          </td>
-        </tr>
-        <tr className="bg-red border-b">
-          <td className="py-1">Finish</td>
-          <td className="py-1">
-            <div className="float-right  h-2 w-1/2 animate-pulse rounded bg-slate-200" />
-          </td>
-          <td className="py-1 pr-2">
-            <div className="float-right  h-2 w-1/2 animate-pulse rounded bg-slate-200" />
-          </td>
-        </tr>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <tr className="" key={i}>
+            <td className="py-2">
+              <div className="h-2 animate-pulse  rounded bg-slate-300 " />
+            </td>
+            <td className="py-2">
+              <div className=" h-2 animate-pulse rounded bg-slate-300" />
+            </td>
+            <td className="py-2 pr-2">
+              <div className=" h-2 animate-pulse rounded bg-slate-300" />
+            </td>
+          </tr>
+        ))}
       </tbody>
     </table>
   );
