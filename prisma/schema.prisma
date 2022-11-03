@@ -82,6 +82,20 @@ model Review {
   finish_quality  Int
   finish_quantity Int
 
+  notes String?
+
   author   User   @relation(fields: [authorId], references: [id])
   authorId String
+  coffee   Coffee @relation(fields: [coffeeId], references: [id])
+  coffeeId String
+}
+
+model Coffee {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name    String
+  roast   String
+  reviews Review[]
 }

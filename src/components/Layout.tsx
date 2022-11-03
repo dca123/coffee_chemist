@@ -42,6 +42,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <div className="space-x-4">
           <ActiveLink href={"/"}>Home</ActiveLink>
           <ActiveLink href={"/reviews"}>All Reviews</ActiveLink>
+          <ActiveLink href={"/coffee/new"}>Add Coffee</ActiveLink>
         </div>
         <LoginButton />
       </div>

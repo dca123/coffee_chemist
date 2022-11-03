@@ -8,9 +8,15 @@ export const reviewRouter = router({
   create: publicProcedure
     .input(CreateReviewInput)
     .mutation(({ input, ctx }) => {
+      const { coffee_id, ...data } = input;
       return ctx.prisma.review.create({
         data: {
-          ...input,
+          ...data,
+          coffee: {
+            connect: {
+              id: coffee_id,
+            },
+          },
           author: {
             connect: {
               id: ctx.session?.user?.id,

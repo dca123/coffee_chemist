@@ -15,5 +15,8 @@ export const CreateReviewInput = z.object({
 
   finish_quality: z.number().min(1).max(10),
   finish_quantity: z.number().min(1).max(10),
+
+  coffee_id: z.string(),
+  notes: z.string().optional(),
 });
 export type CreateReviewInput = z.infer<typeof CreateReviewInput>;

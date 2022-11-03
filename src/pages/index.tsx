@@ -5,11 +5,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { trpc } from "../utils/trpc";
 import { CreateReviewInput } from "../server/schema/review";
 import dayjs from "dayjs";
+import { SubmitButton } from "../components/SubmitButton";
 
 const Home: NextPage = () => {
-  // const hello = trpc.review.reviews.useQuery();
   const { mutate, isLoading } = trpc.review.create.useMutation();
-  const { handleSubmit, control } = useForm<CreateReviewInput>({
+  const {
+    handleSubmit,
+    control,
+    register,
+    formState: { errors },
+  } = useForm<CreateReviewInput>({
     resolver: zodResolver(CreateReviewInput),
     defaultValues: {
       aroma_quality: 5,
@@ -29,7 +34,7 @@ const Home: NextPage = () => {
     },
   });
   const displayDate = dayjs().format("hh:mm a, dddd D, MMM ");
-
+  console.log(errors);
   const submit = handleSubmit((data) => mutate(data));
   return (
     <div className="mt-8 flex  flex-col items-center  space-y-8">
@@ -43,25 +48,39 @@ const Home: NextPage = () => {
             <Input control={control} name="acidity_quality" />
             <Input control={control} name="acidity_quantity" />
           </InputDecorator>
-
           <InputDecorator label="Aroma">
             <Input control={control} name="aroma_quality" />
             <Input control={control} name="aroma_quantity" />
           </InputDecorator>
-
           <InputDecorator label="Body">
             <Input control={control} name="body_quality" />
             <Input control={control} name="body_quantity" />
           </InputDecorator>
-
           <InputDecorator label="Finish">
             <Input control={control} name="finish_quality" />
             <Input control={control} name="finish_quantity" />
           </InputDecorator>
-
           <InputDecorator label="Sweetness">
             <Input control={control} name="sweetness_quality" />
             <Input control={control} name="sweetness_quantity" />
+          </InputDecorator>
+          <InputDecorator label="Meta">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-4">
+                <p className="min-w-max">Coffee</p>
+                <CoffeeQuery>
+                  {(data) => <CoffeeSelect control={control} data={data} />}
+                </CoffeeQuery>
+              </div>
+              <div className="flex items-center space-x-4">
+                <p className="min-w-max">Notes</p>
+                <input
+                  {...register("notes")}
+                  type={"textArea"}
+                  className="rounded border bg-slate-800 p-2"
+                />
+              </div>
+            </div>
           </InputDecorator>
         </div>
         <SubmitButton isLoading={isLoading} />
@@ -70,16 +89,47 @@ const Home: NextPage = () => {
   );
 };
 
-const SubmitButton = ({ isLoading }: { isLoading: boolean }) => {
-  const displayText = isLoading ? "Saving..." : "Save";
+const CoffeeQuery = ({
+  children,
+}: {
+  children: (
+    data: { id: string; name: string; roast: string }[]
+  ) => React.ReactElement;
+}) => {
+  const { data, isLoading, isError } = trpc.coffee.all.useQuery();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error</div>;
+  }
+
+  return children(data);
+};
+
+const CoffeeSelect = ({
+  control,
+  data,
+}: {
+  control: Control<CreateReviewInput>;
+  data: { id: string; name: string; roast: string }[];
+}) => {
+  const { field } = useController({
+    control,
+    name: "coffee_id",
+    defaultValue: data[0]?.id,
+  });
+
   return (
-    <button
-      type="submit"
-      className=" max-w-min rounded  bg-sky-600 p-2 px-4 text-slate-200"
-      disabled={isLoading}
-    >
-      {displayText}
-    </button>
+    <select {...field} className="rounded border bg-slate-800 p-2">
+      {data.map((coffee) => (
+        <option key={coffee.id} value={coffee.id}>
+          {coffee.name} - {coffee.roast}
+        </option>
+      ))}
+    </select>
   );
 };
 
@@ -92,7 +142,7 @@ const InputDecorator = ({
 }) => {
   return (
     <div className="rounded border-2 p-4">
-      <h2 className="text-md text-blue-400">{label}</h2>
+      <h2 className="text-md text-sky-400">{label}</h2>
       <div className="mt-1 flex space-x-6">{children}</div>
     </div>
   );
