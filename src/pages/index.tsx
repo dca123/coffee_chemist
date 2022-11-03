@@ -41,30 +41,32 @@ const Home: NextPage = () => {
         <h1 className="text-center text-2xl font-medium">{displayDate}</h1>
       </div>
       <form onSubmit={submit} className="flex  flex-col items-center space-y-6">
-        <InputDecorator label="Acidity">
-          <Input control={control} name="acidity_quality" />
-          <Input control={control} name="acidity_quantity" />
-        </InputDecorator>
+        <div className="grid grid-cols-2 gap-4">
+          <InputDecorator label="Acidity">
+            <Input control={control} name="acidity_quality" />
+            <Input control={control} name="acidity_quantity" />
+          </InputDecorator>
 
-        <InputDecorator label="Aroma">
-          <Input control={control} name="aroma_quality" />
-          <Input control={control} name="aroma_quantity" />
-        </InputDecorator>
+          <InputDecorator label="Aroma">
+            <Input control={control} name="aroma_quality" />
+            <Input control={control} name="aroma_quantity" />
+          </InputDecorator>
 
-        <InputDecorator label="Body">
-          <Input control={control} name="body_quality" />
-          <Input control={control} name="body_quantity" />
-        </InputDecorator>
+          <InputDecorator label="Body">
+            <Input control={control} name="body_quality" />
+            <Input control={control} name="body_quantity" />
+          </InputDecorator>
 
-        <InputDecorator label="Finish">
-          <Input control={control} name="finish_quality" />
-          <Input control={control} name="finish_quantity" />
-        </InputDecorator>
+          <InputDecorator label="Finish">
+            <Input control={control} name="finish_quality" />
+            <Input control={control} name="finish_quantity" />
+          </InputDecorator>
 
-        <InputDecorator label="Sweetness">
-          <Input control={control} name="sweetness_quality" />
-          <Input control={control} name="sweetness_quantity" />
-        </InputDecorator>
+          <InputDecorator label="Sweetness">
+            <Input control={control} name="sweetness_quality" />
+            <Input control={control} name="sweetness_quantity" />
+          </InputDecorator>
+        </div>
         <SubmitButton isLoading={isLoading} />
       </form>
     </div>
@@ -76,7 +78,7 @@ const SubmitButton = ({ isLoading }: { isLoading: boolean }) => {
   return (
     <button
       type="submit"
-      className=" max-w-min rounded  bg-sky-800 p-2 px-4"
+      className=" max-w-min rounded  bg-sky-600 p-2 px-4 text-slate-200"
       disabled={isLoading}
     >
       {displayText}
