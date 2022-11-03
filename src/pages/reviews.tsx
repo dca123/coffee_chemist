@@ -1,5 +1,5 @@
-import { Review } from "@prisma/client";
-import { NextPage } from "next";
+import type { Review } from "@prisma/client";
+import type { NextPage } from "next";
 import { trpc } from "../utils/trpc";
 import dayjs from "dayjs";
 
