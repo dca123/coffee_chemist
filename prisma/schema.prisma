@@ -67,27 +67,36 @@ model Review {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  aroma_quality  Int
-  aroma_quantity Int
+  aroma_quality   Int
+  aroma_intensity Int
 
-  acidity_quality  Int
-  acidity_quantity Int
+  acidity_quality   Int
+  acidity_intensity Int
 
-  sweetness_quality  Int
-  sweetness_quantity Int
+  sweetness_quality   Int
+  sweetness_intensity Int
 
-  body_quality  Int
-  body_quantity Int
+  body_quality   Int
+  body_intensity Int
 
-  finish_quality  Int
-  finish_quantity Int
+  finish_quality   Int
+  finish_intensity Int
 
   notes String?
+  brew  Brew
 
   author   User   @relation(fields: [authorId], references: [id])
   authorId String
   coffee   Coffee @relation(fields: [coffeeId], references: [id])
   coffeeId String
+}
+
+enum Brew {
+  Espresso
+  Pourover
+  Frenchpress
+  Aeropress
+  Coldbrew
 }
 
 model Coffee {
@@ -98,4 +107,9 @@ model Coffee {
   name    String
   roast   String
   reviews Review[]
+}
+
+model Location {
+  id   String @id @default(cuid())
+  name String
 }

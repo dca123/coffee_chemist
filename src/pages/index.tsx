@@ -7,6 +7,7 @@ import { CreateReviewInput } from "../server/schema/review";
 import dayjs from "dayjs";
 import { SubmitButton } from "../components/SubmitButton";
 import Link from "next/link";
+import { Brew } from "@prisma/client";
 
 const Home: NextPage = () => {
   const { mutate, isLoading } = trpc.review.create.useMutation();
@@ -19,19 +20,19 @@ const Home: NextPage = () => {
     resolver: zodResolver(CreateReviewInput),
     defaultValues: {
       aroma_quality: 5,
-      aroma_quantity: 5,
+      aroma_intensity: 5,
 
       acidity_quality: 5,
-      acidity_quantity: 5,
+      acidity_intensity: 5,
 
       sweetness_quality: 5,
-      sweetness_quantity: 5,
+      sweetness_intensity: 5,
 
       body_quality: 5,
-      body_quantity: 5,
+      body_intensity: 5,
 
       finish_quality: 5,
-      finish_quantity: 5,
+      finish_intensity: 5,
     },
   });
   const displayDate = dayjs().format("hh:mm a, dddd D, MMM ");
@@ -47,23 +48,23 @@ const Home: NextPage = () => {
         <div className="grid grid-cols-2 gap-4">
           <InputDecorator label="Acidity">
             <Input control={control} name="acidity_quality" />
-            <Input control={control} name="acidity_quantity" />
+            <Input control={control} name="acidity_intensity" />
           </InputDecorator>
           <InputDecorator label="Aroma">
             <Input control={control} name="aroma_quality" />
-            <Input control={control} name="aroma_quantity" />
+            <Input control={control} name="aroma_intensity" />
           </InputDecorator>
           <InputDecorator label="Body">
             <Input control={control} name="body_quality" />
-            <Input control={control} name="body_quantity" />
+            <Input control={control} name="body_intensity" />
           </InputDecorator>
           <InputDecorator label="Finish">
             <Input control={control} name="finish_quality" />
-            <Input control={control} name="finish_quantity" />
+            <Input control={control} name="finish_intensity" />
           </InputDecorator>
           <InputDecorator label="Sweetness">
             <Input control={control} name="sweetness_quality" />
-            <Input control={control} name="sweetness_quantity" />
+            <Input control={control} name="sweetness_intensity" />
           </InputDecorator>
           <InputDecorator label="Meta">
             <div className="space-y-4">
@@ -80,6 +81,19 @@ const Home: NextPage = () => {
                   type={"textArea"}
                   className="rounded border bg-slate-800 p-2"
                 />
+              </div>
+              <div className="flex items-center space-x-4">
+                <p className="min-w-max">Brew</p>
+                <select
+                  {...register("brew")}
+                  className="rounded border bg-slate-800 p-2"
+                >
+                  {Object.values(Brew).map((brew) => (
+                    <option key={brew} value={brew}>
+                      {brew}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </InputDecorator>
@@ -172,8 +186,8 @@ const Input = ({
     name,
   });
 
-  const isQuality = name.endsWith("quality");
-  const label = isQuality ? "Quality" : "Quantity";
+  const isIntensity = name.endsWith("intensity");
+  const label = isIntensity ? "Quality" : "Intensity";
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     return field.onChange(parseInt(e.target.value));
   };
