@@ -34,11 +34,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div>
+    <div className="my-8">
       <Head>
         <title>Coffee Chemist</title>
       </Head>
-      <div className=" mt-8 min-w-full space-y-6">
+      <div className="min-w-full space-y-6">
         <div className="flex min-w-full justify-center  ">
           <div className="space-x-4">
             <ActiveLink href={"/"}>Home</ActiveLink>
