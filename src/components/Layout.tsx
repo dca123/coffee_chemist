@@ -38,13 +38,17 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <Head>
         <title>Coffee Chemist</title>
       </Head>
-      <div className="mx-6 mt-5 flex items-center justify-between">
-        <div className="space-x-4">
-          <ActiveLink href={"/"}>Home</ActiveLink>
-          <ActiveLink href={"/reviews"}>All Reviews</ActiveLink>
-          <ActiveLink href={"/coffee/new"}>Add Coffee</ActiveLink>
+      <div className=" mt-8 min-w-full space-y-6">
+        <div className="flex min-w-full justify-center  ">
+          <div className="space-x-4">
+            <ActiveLink href={"/"}>Home</ActiveLink>
+            <ActiveLink href={"/reviews"}>All Reviews</ActiveLink>
+            <ActiveLink href={"/coffee/new"}>Add Coffee</ActiveLink>
+          </div>
         </div>
-        <LoginButton />
+        <div className="flex min-w-full  justify-center">
+          <LoginButton />
+        </div>
       </div>
       <div className="container mx-auto">{children}</div>
     </div>

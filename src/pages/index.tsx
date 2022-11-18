@@ -45,7 +45,7 @@ const Home: NextPage = () => {
         <h1 className="text-center text-2xl font-medium">{displayDate}</h1>
       </div>
       <form onSubmit={submit} className="flex  flex-col items-center space-y-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <InputDecorator label="Acidity">
             <Input control={control} name="acidity_quality" />
             <Input control={control} name="acidity_intensity" />
