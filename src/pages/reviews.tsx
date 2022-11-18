@@ -35,7 +35,7 @@ const Reviews: NextPage = () => {
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="mx-16 mt-2">
+    <div className="mx-8 mt-2">
       <h1 className="text-center text-xl font-light">Reviews</h1>
 
       <div className="mt-8 grid grid-cols-1 gap-4">{children}</div>
