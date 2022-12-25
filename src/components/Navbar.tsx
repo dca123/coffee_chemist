@@ -5,13 +5,13 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
+import Link from "next/link";
 import { Fragment } from "react";
 
 const navigation = [
-  { name: "Home", href: "#", current: true },
-  { name: "Reviews", href: "#", current: false },
-  { name: "Coffees", href: "#", current: false },
-  { name: "Calendar", href: "#", current: false },
+  { name: "Add Review", href: "/", current: true },
+  { name: "Reviews", href: "/reviews", current: false },
+  { name: "Add Coffee", href: "/coffee/new", current: false },
 ];
 
 export const Navbar = () => {
@@ -27,17 +27,18 @@ export const Navbar = () => {
       <Disclosure.Panel>
         <div className="absolute z-10 min-w-full space-y-1 rounded bg-slate-800 px-2 pt-4 pb-3 shadow-md">
           {navigation.map((item) => (
-            <div
+            <Link
               key={item.name}
+              href={item.href}
               className={clsx(
                 item.current
                   ? "text-white"
                   : "text-gray-400 hover:bg-gray-700 hover:text-white",
-                "rounded-md px-3 py-2 font-medium"
+                "block rounded-md px-3 py-2 font-medium"
               )}
             >
               {item.name}
-            </div>
+            </Link>
           ))}
         </div>
       </Disclosure.Panel>
