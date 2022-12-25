@@ -8,6 +8,8 @@ import dayjs from "dayjs";
 import { SubmitButton } from "../components/SubmitButton";
 import Link from "next/link";
 import { Brew } from "@prisma/client";
+import { DevTool } from "@hookform/devtools";
+import clsx from "clsx";
 
 const Home: NextPage = () => {
   const { mutate, isLoading } = trpc.review.create.useMutation();
@@ -15,7 +17,8 @@ const Home: NextPage = () => {
     handleSubmit,
     control,
     register,
-    formState: { errors },
+    setError,
+    formState: { errors, touchedFields },
   } = useForm<CreateReviewInput>({
     resolver: zodResolver(CreateReviewInput),
     defaultValues: {
@@ -37,7 +40,34 @@ const Home: NextPage = () => {
   });
   const displayDate = dayjs().format("hh:mm a, dddd D, MMM ");
   console.log(errors);
-  const submit = handleSubmit((data) => mutate(data));
+  const submit = handleSubmit((data) => {
+    const requiredFields: Array<keyof CreateReviewInput> = [
+      "acidity_intensity",
+      "acidity_quality",
+      "aroma_intensity",
+      "aroma_quality",
+      "body_intensity",
+      "body_quality",
+      "finish_intensity",
+      "finish_quality",
+      "sweetness_intensity",
+      "sweetness_quality",
+    ];
+
+    const untouchedFields = requiredFields.filter(
+      (field) => Object.keys(touchedFields).includes(field) === false
+    );
+
+    console.log(untouchedFields);
+
+    if (untouchedFields.length > 0) {
+      untouchedFields.forEach((field) =>
+        setError(field, { type: "required", message: "Required" })
+      );
+    }
+
+    // mutate(data);
+  });
   return (
     <div className="mt-8 flex  flex-col items-center  space-y-8">
       <div>
@@ -100,6 +130,7 @@ const Home: NextPage = () => {
         </div>
         <SubmitButton isLoading={isLoading} />
       </form>
+      <DevTool control={control} />
     </div>
   );
 };
@@ -181,22 +212,32 @@ const Input = ({
   control: Control<CreateReviewInput>;
   name: FieldPath<CreateReviewInput>;
 }) => {
-  const { field } = useController({
+  const {
+    field,
+    fieldState: { isTouched, error },
+  } = useController({
     control,
     name,
   });
-
   const isIntensity = name.endsWith("intensity");
   const label = isIntensity ? "Quality" : "Intensity";
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    field.onBlur();
     return field.onChange(parseInt(e.target.value));
   };
 
   return (
     <div className="flex flex-col space-y-1">
-      <p className="text-lg">{label}</p>
+      <p className="text-white">{label}</p>
       <div className="flex flex-col justify-start">
-        <p className="text-xl">{field.value}</p>
+        <p
+          className={clsx(
+            "text-xl",
+            isTouched ? "text-white" : "text-slate-400"
+          )}
+        >
+          {field.value}
+        </p>
         <input
           {...field}
           type={"range"}
@@ -205,6 +246,7 @@ const Input = ({
           step={1}
           onChange={handleChange}
         />
+        <p className="pt-2 text-sm text-red-400">{error?.message}</p>
       </div>
     </div>
   );

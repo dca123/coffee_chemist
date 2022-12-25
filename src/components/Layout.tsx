@@ -40,43 +40,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <title>Coffee Chemist</title>
       </Head>
       <Navbar />
-      {/* <div className="min-w-full space-y-6">
-        <div className="flex min-w-full justify-center  ">
-          <div className="space-x-4">
-            <ActiveLink href={"/"}>Home</ActiveLink>
-            <ActiveLink href={"/reviews"}>All Reviews</ActiveLink>
-            <ActiveLink href={"/coffee/new"}>Add Coffee</ActiveLink>
-          </div>
-        </div>
-        <div className="flex min-w-full  justify-center">
-          <LoginButton />
-        </div>
-      </div> */}
       <div className="container mx-auto">{children}</div>
     </div>
   );
 };
 export default Layout;
-
-const ActiveLink = ({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) => {
-  const router = useRouter();
-  const style = clsx(
-    "rounded border p-2 ",
-    router.asPath === href ? "text-slate-200" : "text-slate-400"
-  );
-
-  return (
-    <Link href={href} className={style}>
-      {children}
-    </Link>
-  );
-};
 
 const LoginButton = () => {
   const { data: session } = useSession();
