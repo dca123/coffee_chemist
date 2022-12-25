@@ -1,7 +1,7 @@
-import { NextPage } from "next";
+import type { NextPage } from "next";
 import { useForm } from "react-hook-form";
 import { SubmitButton } from "../../components/SubmitButton";
-import { CreateCoffeeInput } from "../../server/schema/coffee";
+import type { CreateCoffeeInput } from "../../server/schema/coffee";
 import { trpc } from "../../utils/trpc";
 
 const CreateCoffee: NextPage = () => {

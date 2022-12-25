@@ -3,6 +3,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { Navbar } from "./Navbar";
 import { Spinner } from "./Spinner";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -38,7 +39,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <Head>
         <title>Coffee Chemist</title>
       </Head>
-      <div className="min-w-full space-y-6">
+      <Navbar />
+      {/* <div className="min-w-full space-y-6">
         <div className="flex min-w-full justify-center  ">
           <div className="space-x-4">
             <ActiveLink href={"/"}>Home</ActiveLink>
@@ -49,7 +51,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <div className="flex min-w-full  justify-center">
           <LoginButton />
         </div>
-      </div>
+      </div> */}
       <div className="container mx-auto">{children}</div>
     </div>
   );
@@ -64,7 +66,6 @@ const ActiveLink = ({
   children: React.ReactNode;
 }) => {
   const router = useRouter();
-  console.log(router.asPath);
   const style = clsx(
     "rounded border p-2 ",
     router.asPath === href ? "text-slate-200" : "text-slate-400"
