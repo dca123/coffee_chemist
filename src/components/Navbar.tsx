@@ -25,7 +25,7 @@ export const Navbar = () => {
         <UserCircleIcon className="block h-6 w-6" aria-hidden="true" />
       </div>
       <Disclosure.Panel>
-        <div className="z-10 space-y-1 px-2 pt-2 pb-3">
+        <div className="absolute z-10 min-w-full space-y-1 rounded bg-slate-800 px-2 pt-4 pb-3 shadow-md">
           {navigation.map((item) => (
             <div
               key={item.name}
