@@ -58,15 +58,14 @@ const Home: NextPage = () => {
       (field) => Object.keys(touchedFields).includes(field) === false
     );
 
-    console.log(untouchedFields);
-
     if (untouchedFields.length > 0) {
       untouchedFields.forEach((field) =>
         setError(field, { type: "required", message: "Required" })
       );
+      return;
     }
 
-    // mutate(data);
+    mutate(data);
   });
   return (
     <div className="mt-8 flex  flex-col items-center  space-y-8">
