@@ -6,6 +6,7 @@ import {
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { Fragment } from "react";
 
 const navigation = [
@@ -16,32 +17,53 @@ const navigation = [
 
 export const Navbar = () => {
   return (
-    <Disclosure as="nav">
-      <div className="flex items-center justify-between px-4">
-        <Disclosure.Button>
-          <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
-        </Disclosure.Button>
-        Coffee Chemist
-        <UserCircleIcon className="block h-6 w-6" aria-hidden="true" />
-      </div>
-      <Disclosure.Panel>
-        <div className="absolute z-10 min-w-full space-y-1 rounded bg-slate-800 px-2 pt-4 pb-3 shadow-md">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={clsx(
-                item.current
-                  ? "text-white"
-                  : "text-gray-400 hover:bg-gray-700 hover:text-white",
-                "block rounded-md px-3 py-2 font-medium"
+    <Menu as="nav">
+      {({ open }) => (
+        <>
+          <div className="flex items-center justify-between px-4">
+            <Menu.Button>
+              {open ? (
+                <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+              ) : (
+                <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
               )}
-            >
-              {item.name}
-            </Link>
-          ))}
-        </div>
-      </Disclosure.Panel>
-    </Disclosure>
+            </Menu.Button>
+            Coffee Chemist
+            <UserCircleIcon className="block h-6 w-6" aria-hidden="true" />
+          </div>
+          <Menu.Items>
+            <div className="absolute z-10 min-w-full space-y-1 rounded bg-slate-800 px-2 pt-4 pb-3 shadow-md">
+              {navigation.map((item) => (
+                <LinkItem key={item.name} {...item} />
+              ))}
+            </div>
+          </Menu.Items>
+        </>
+      )}
+    </Menu>
+  );
+};
+
+const LinkItem = ({ name, href }: { name: string; href: string }) => {
+  const router = useRouter();
+  const current = router.asPath === href;
+  return (
+    <Menu.Item>
+      {({ active, close }) => (
+        <Link
+          onClick={close}
+          href={href}
+          className={clsx(
+            current
+              ? "text-white"
+              : "text-gray-400 hover:bg-gray-700 hover:text-white",
+            active ? "bg-gray-700" : "",
+            "block rounded-md px-3 py-2 font-medium"
+          )}
+        >
+          {name}
+        </Link>
+      )}
+    </Menu.Item>
   );
 };
