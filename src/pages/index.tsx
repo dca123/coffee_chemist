@@ -114,24 +114,10 @@ const Home: NextPage = () => {
                 }
                 cafe={<>hello</>}
               />
-
-              <div className="flex w-full items-center justify-between space-x-4">
-                <p className="w-full flex-1 border-2">Brew</p>
-                <select
-                  {...register("brew")}
-                  className="flex-2 w-full rounded border bg-slate-800 p-2"
-                >
-                  {Object.values(Brew).map((brew) => (
-                    <option key={brew} value={brew}>
-                      {brew}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
           </InputDecorator>
           <InputDecorator label="Brew">
-            <BrewSelect />
+            <BrewSelect control={control} />
           </InputDecorator>
           <InputDecorator label="Notes">
             <textarea
@@ -230,8 +216,13 @@ const ReviewLocation = ({
   );
 };
 
-const BrewSelect = () => {
-  const [brew, setBrew] = useState<Brew>(Brew.Espresso);
+const BrewSelect = ({ control }: { control: Control<CreateReviewInput> }) => {
+  const { field } = useController({
+    control,
+    name: "brew",
+    defaultValue: Brew.Espresso,
+  });
+
   const displayBrewMap: Record<Brew, string> = {
     Coldbrew: "Cold Brew",
     Espresso: "Espresso",
@@ -239,15 +230,24 @@ const BrewSelect = () => {
     MokaPot: "Moka Pot",
   };
 
+  const handleChange = (brew: Brew) => {
+    field.onBlur();
+    field.onChange(brew);
+  };
+
   return (
-    <RadioGroup className="mt-2 w-full space-y-3">
+    <RadioGroup
+      className="mt-2 w-full space-y-3"
+      value={field.value}
+      onChange={handleChange}
+    >
       {Object.values(Brew).map((brew) => (
         <RadioGroup.Option key={brew} value={brew}>
           {({ checked }) => (
             <div
               className={clsx(
-                checked ? "bg-sky-600" : "",
-                "w-full rounded border p-2 text-center text-lg"
+                checked ? "border-sky-600 bg-sky-600" : "",
+                "w-full rounded border p-2 text-center text-lg ring-1"
               )}
             >
               {displayBrewMap[brew]}
