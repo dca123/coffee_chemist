@@ -16,7 +16,7 @@ const navigation = [
 
 export const Navbar = () => {
   return (
-    <Menu as="nav">
+    <Menu>
       {({ open }) => (
         <>
           <div className="flex items-center justify-between px-4">

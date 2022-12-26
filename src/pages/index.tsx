@@ -10,6 +10,8 @@ import Link from "next/link";
 import { Brew } from "@prisma/client";
 import { DevTool } from "@hookform/devtools";
 import clsx from "clsx";
+import { ReactElement, useState } from "react";
+import { RadioGroup } from "@headlessui/react";
 
 const Home: NextPage = () => {
   const { mutate, isLoading } = trpc.review.create.useMutation();
@@ -96,26 +98,28 @@ const Home: NextPage = () => {
             <Input control={control} name="sweetness_intensity" />
           </InputDecorator>
           <InputDecorator label="Meta">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <p className="min-w-max">Coffee</p>
-                <CoffeeQuery>
-                  {(data) => <CoffeeSelect control={control} data={data} />}
-                </CoffeeQuery>
-              </div>
-              <div className="flex items-center space-x-4">
-                <p className="min-w-max">Notes</p>
-                <input
-                  {...register("notes")}
-                  type={"textArea"}
-                  className="rounded border bg-slate-800 p-2"
-                />
-              </div>
-              <div className="flex items-center space-x-4">
-                <p className="min-w-max">Brew</p>
+            <div className="space-y-2">
+              <ReviewLocation
+                home={
+                  <div className="space-y-4">
+                    <div className="flex w-full items-center justify-between space-x-4">
+                      <p className="min-w-max">Coffee</p>
+                      <CoffeeQuery>
+                        {(data) => (
+                          <CoffeeSelect control={control} data={data} />
+                        )}
+                      </CoffeeQuery>
+                    </div>
+                  </div>
+                }
+                cafe={<>hello</>}
+              />
+
+              <div className="flex w-full items-center justify-between space-x-4">
+                <p className="w-full flex-1 border-2">Brew</p>
                 <select
                   {...register("brew")}
-                  className="rounded border bg-slate-800 p-2"
+                  className="flex-2 w-full rounded border bg-slate-800 p-2"
                 >
                   {Object.values(Brew).map((brew) => (
                     <option key={brew} value={brew}>
@@ -125,6 +129,16 @@ const Home: NextPage = () => {
                 </select>
               </div>
             </div>
+          </InputDecorator>
+          <InputDecorator label="Brew">
+            <BrewSelect />
+          </InputDecorator>
+          <InputDecorator label="Notes">
+            <textarea
+              {...register("notes")}
+              placeholder="Anything else to record"
+              className="w-full rounded bg-slate-700 p-2 text-slate-200"
+            />
           </InputDecorator>
         </div>
         <SubmitButton isLoading={isLoading} />
@@ -163,6 +177,86 @@ const CoffeeQuery = ({
   }
 
   return children(data);
+};
+
+const ReviewLocation = ({
+  home,
+  cafe,
+}: {
+  home: React.ReactElement;
+  cafe: React.ReactElement;
+}) => {
+  const [location, setLocation] = useState<"home" | "cafe">("home");
+  const locationForm = location === "home" ? home : cafe;
+  return (
+    <div className="space-y-2">
+      <RadioGroup
+        value={location}
+        onChange={setLocation}
+        className="flex w-full items-center justify-between"
+      >
+        <RadioGroup.Label>Location</RadioGroup.Label>
+        <div className="flex items-center space-x-2">
+          <RadioGroup.Option value="home">
+            {({ checked }) => (
+              <button
+                type="button"
+                className={clsx(
+                  checked ? "bg-sky-700" : "",
+                  "cursor-pointer rounded border px-2 py-2"
+                )}
+              >
+                Home
+              </button>
+            )}
+          </RadioGroup.Option>
+          <RadioGroup.Option value="cafe">
+            {({ checked }) => (
+              <button
+                type="button"
+                className={clsx(
+                  checked ? "bg-sky-700" : "",
+                  "cursor-pointer rounded border px-2 py-2"
+                )}
+              >
+                Cafe
+              </button>
+            )}
+          </RadioGroup.Option>
+        </div>
+      </RadioGroup>
+      {locationForm}
+    </div>
+  );
+};
+
+const BrewSelect = () => {
+  const [brew, setBrew] = useState<Brew>(Brew.Espresso);
+  const displayBrewMap: Record<Brew, string> = {
+    Coldbrew: "Cold Brew",
+    Espresso: "Espresso",
+    Frenchpress: "French Press",
+    MokaPot: "Moka Pot",
+  };
+
+  return (
+    <RadioGroup className="mt-2 w-full space-y-3">
+      {Object.values(Brew).map((brew) => (
+        <RadioGroup.Option key={brew} value={brew}>
+          {({ checked }) => (
+            <div
+              className={clsx(
+                checked ? "bg-sky-600" : "",
+                "w-full rounded border p-2 text-center text-lg"
+              )}
+            >
+              {displayBrewMap[brew]}
+            </div>
+          )}
+        </RadioGroup.Option>
+      ))}
+    </RadioGroup>
+  );
 };
 
 const CoffeeSelect = ({

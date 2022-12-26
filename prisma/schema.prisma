@@ -93,10 +93,9 @@ model Review {
 
 enum Brew {
   Espresso
-  Pourover
   Frenchpress
-  Aeropress
   Coldbrew
+  MokaPot
 }
 
 model Coffee {
