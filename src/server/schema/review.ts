@@ -1,7 +1,7 @@
 import { Brew } from "@prisma/client";
 import { z } from "zod";
 
-export const CreateReviewInput = z.object({
+const ReviewSchema = z.object({
   aroma_quality: z.number().min(1).max(10),
   aroma_intensity: z.number().min(1).max(10),
 
@@ -17,8 +17,19 @@ export const CreateReviewInput = z.object({
   finish_quality: z.number().min(1).max(10),
   finish_intensity: z.number().min(1).max(10),
 
-  coffee_id: z.string(),
-  notes: z.string().optional(),
   brew: z.nativeEnum(Brew),
+  notes: z.string().optional(),
 });
+
+const CafeReview = ReviewSchema.extend({
+  cafeId: z.string(),
+  type: z.literal("cafe")
+});
+
+const HomeReview = ReviewSchema.extend({
+  coffeeId: z.string(),
+  type: z.literal("home")
+});
+
+export const CreateReviewInput = z.discriminatedUnion("type", [CafeReview, HomeReview])
 export type CreateReviewInput = z.infer<typeof CreateReviewInput>;

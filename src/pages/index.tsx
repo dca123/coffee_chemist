@@ -7,11 +7,12 @@ import { CreateReviewInput } from "../server/schema/review";
 import dayjs from "dayjs";
 import { SubmitButton } from "../components/SubmitButton";
 import Link from "next/link";
+import type { Cafe } from "@prisma/client";
 import { Brew } from "@prisma/client";
 import { DevTool } from "@hookform/devtools";
 import clsx from "clsx";
-import { ReactElement, useState } from "react";
-import { RadioGroup } from "@headlessui/react";
+import { useState } from "react";
+import { Listbox, RadioGroup } from "@headlessui/react";
 
 const Home: NextPage = () => {
   const { mutate, isLoading } = trpc.review.create.useMutation();
@@ -97,8 +98,8 @@ const Home: NextPage = () => {
             <Input control={control} name="sweetness_quality" />
             <Input control={control} name="sweetness_intensity" />
           </InputDecorator>
-          <InputDecorator label="Meta">
-            <div className="space-y-2">
+          <InputDecorator label="Location">
+            <div className="w-full space-y-2">
               <ReviewLocation
                 home={
                   <div className="space-y-4">
@@ -112,7 +113,16 @@ const Home: NextPage = () => {
                     </div>
                   </div>
                 }
-                cafe={<>hello</>}
+                cafe={
+                  <div className="space-y-4">
+                    <div className="flex w-full items-center justify-between space-x-4">
+                      <p className="min-w-max">Cafe</p>
+                      <CafeQuery>
+                        {(data) => <CafeSelect cafes={data} />}
+                      </CafeQuery>
+                    </div>
+                  </div>
+                }
               />
             </div>
           </InputDecorator>
@@ -165,6 +175,65 @@ const CoffeeQuery = ({
   return children(data);
 };
 
+const CafeQuery = ({
+  children,
+}: {
+  children: (data: Array<Cafe>) => React.ReactElement;
+}) => {
+  const { data, isLoading, isError } = trpc.cafe.all.useQuery();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error</div>;
+  }
+
+  if (data.length === 0) {
+    return (
+      <div>
+        No Cafe -{" "}
+        <Link href="/cafe/new" className="underline">
+          Create One
+        </Link>
+      </div>
+    );
+  }
+
+  return children(data);
+};
+
+const CafeSelect = ({ cafes }: { cafes: Cafe[] }) => {
+  const [selectedCafe, setSelectedCafe] = useState<Cafe>(cafes[0] as Cafe);
+
+  return (
+    <Listbox value={selectedCafe} onChange={setSelectedCafe}>
+      <div className="relative mt-1">
+        <Listbox.Button className="relative w-full cursor-default rounded border border-white py-2 pl-3 pr-10 text-left">
+          {selectedCafe.name}
+        </Listbox.Button>
+        <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-slate-600 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+          {cafes.map((cafe) => (
+            <Listbox.Option key={cafe.id} value={cafe}>
+              {({ selected, active }) => (
+                <li
+                  className={clsx(
+                    "px-2 py-1",
+                    active ? "bg-slate-500" : "bg-slate-600"
+                  )}
+                >
+                  {cafe.name}
+                </li>
+              )}
+            </Listbox.Option>
+          ))}
+        </Listbox.Options>
+      </div>
+    </Listbox>
+  );
+};
+
 const ReviewLocation = ({
   home,
   cafe,
@@ -175,41 +244,38 @@ const ReviewLocation = ({
   const [location, setLocation] = useState<"home" | "cafe">("home");
   const locationForm = location === "home" ? home : cafe;
   return (
-    <div className="space-y-2">
+    <div className="w-full space-y-2">
       <RadioGroup
         value={location}
         onChange={setLocation}
-        className="flex w-full items-center justify-between"
+        className="flex w-full space-x-4"
       >
-        <RadioGroup.Label>Location</RadioGroup.Label>
-        <div className="flex items-center space-x-2">
-          <RadioGroup.Option value="home">
-            {({ checked }) => (
-              <button
-                type="button"
-                className={clsx(
-                  checked ? "bg-sky-700" : "",
-                  "cursor-pointer rounded border px-2 py-2"
-                )}
-              >
-                Home
-              </button>
-            )}
-          </RadioGroup.Option>
-          <RadioGroup.Option value="cafe">
-            {({ checked }) => (
-              <button
-                type="button"
-                className={clsx(
-                  checked ? "bg-sky-700" : "",
-                  "cursor-pointer rounded border px-2 py-2"
-                )}
-              >
-                Cafe
-              </button>
-            )}
-          </RadioGroup.Option>
-        </div>
+        <RadioGroup.Option value="home" className="w-full">
+          {({ checked }) => (
+            <button
+              type="button"
+              className={clsx(
+                checked ? "bg-sky-700" : "",
+                "w-full cursor-pointer rounded border px-2 py-2"
+              )}
+            >
+              Home
+            </button>
+          )}
+        </RadioGroup.Option>
+        <RadioGroup.Option value="cafe" className="w-full">
+          {({ checked }) => (
+            <button
+              type="button"
+              className={clsx(
+                checked ? "bg-sky-700" : "",
+                "w-full cursor-pointer rounded border px-2 py-2"
+              )}
+            >
+              Cafe
+            </button>
+          )}
+        </RadioGroup.Option>
       </RadioGroup>
       {locationForm}
     </div>
@@ -268,7 +334,7 @@ const CoffeeSelect = ({
 }) => {
   const { field } = useController({
     control,
-    name: "coffee_id",
+    name: "coffeeId",
     defaultValue: data[0]?.id,
   });
 
@@ -334,7 +400,7 @@ const Input = ({
         <input
           {...field}
           type={"range"}
-          min={0}
+          min={1}
           max={10}
           step={1}
           onChange={handleChange}

@@ -87,8 +87,25 @@ model Review {
 
   author   User   @relation(fields: [authorId], references: [id])
   authorId String
-  coffee   Coffee @relation(fields: [coffeeId], references: [id])
+
+  CafeReview CafeReview?
+  HomeReview HomeReview?
+}
+
+model CafeReview {
+  id     String @id
+  review Review @relation(fields: [id], references: [id])
+
+  cafeId String
+  cafe   Cafe   @relation(fields: [cafeId], references: [id])
+}
+
+model HomeReview {
+  id     String @id
+  review Review @relation(fields: [id], references: [id])
+
   coffeeId String
+  coffee   Coffee @relation(fields: [coffeeId], references: [id])
 }
 
 enum Brew {
@@ -103,12 +120,17 @@ model Coffee {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name    String
-  roast   String
-  reviews Review[]
+  name       String
+  roast      String
+  HomeReview HomeReview[]
 }
 
-model Location {
-  id   String @id @default(cuid())
-  name String
+model Cafe {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name       String
+  location   String
+  CafeReview CafeReview[]
 }

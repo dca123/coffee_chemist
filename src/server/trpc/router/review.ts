@@ -1,36 +1,50 @@
 import { CreateReviewInput } from "../../schema/review";
 import { publicProcedure, router } from "../trpc";
+import type { Prisma } from "@prisma/client";
 
 export const reviewRouter = router({
   reviews: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.review.findMany({
-      include: {
-        coffee: {
-          select: {
-            name: true,
-          },
-        },
-      },
+
     });
   }),
   create: publicProcedure
     .input(CreateReviewInput)
-    .mutation(({ input, ctx }) => {
-      const { coffee_id, ...data } = input;
-      return ctx.prisma.review.create({
-        data: {
+    .mutation(async ({ input, ctx }) => {
+      const { type, ...data } = input;
+      const review: Prisma.ReviewCreateNestedOneWithoutCafeReviewInput | Prisma.ReviewCreateNestedOneWithoutHomeReviewInput = {
+        create: {
           ...data,
-          coffee: {
-            connect: {
-              id: coffee_id,
-            },
-          },
           author: {
             connect: {
               id: ctx.session?.user?.id,
+            }
+          }
+        }
+      }
+
+      if (type === "cafe") {
+        return await ctx.prisma.cafeReview.create({
+          data: {
+            cafe: {
+              connect: {
+                id: input.cafeId,
+              }
             },
-          },
-        },
-      });
+            review
+          }
+        })
+      } else {
+        return await ctx.prisma.homeReview.create({
+          data: {
+            coffee: {
+              connect: {
+                id: input.coffeeId,
+              }
+            },
+            review
+          }
+        })
+      }
     }),
 });
