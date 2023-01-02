@@ -93,7 +93,7 @@ const Table = ({
               <span>{dayjs(review.createdAt).format("hh:mm a")}</span>
             </h1>
             <h1>
-              {review.coffee.name} - {review.brew}
+              {review.cafeReview?.cafe.name} - {review.brew}
             </h1>
           </th>
           <th className="py-3 text-right font-normal">Quality</th>

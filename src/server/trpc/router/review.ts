@@ -5,7 +5,14 @@ import type { Prisma } from "@prisma/client";
 export const reviewRouter = router({
   reviews: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.review.findMany({
-
+      include: {
+        cafeReview: {
+          include: {
+            cafe: true,
+          }
+        },
+        homeReview: true,
+      }
     });
   }),
   create: publicProcedure
