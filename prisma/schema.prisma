@@ -69,21 +69,27 @@ model Review {
 
   aroma_quality   Int
   aroma_intensity Int
+  aroma_notes     String?
 
   acidity_quality   Int
   acidity_intensity Int
+  acidity_notes     String?
 
   sweetness_quality   Int
   sweetness_intensity Int
+  sweetness_notes     String?
 
   body_quality   Int
   body_intensity Int
+  body_notes     String?
 
   finish_quality   Int
   finish_intensity Int
+  finish_notes     String?
 
-  notes String?
-  brew  Brew
+  overall_score Int
+  flavour_notes String? @map("notes")
+  brew          Brew
 
   author   User   @relation(fields: [authorId], references: [id])
   authorId String
