@@ -127,7 +127,7 @@ const Table = ({
           <td className="py-1 pr-2 text-right">{review.finish_intensity}</td>
         </tr>
         <tr className="bg-red">
-          <td className="py-2 text-sm font-light">{review.notes}</td>
+          <td className="py-2 text-sm font-light">{review.flavour_notes}</td>
         </tr>
       </tbody>
     </table>

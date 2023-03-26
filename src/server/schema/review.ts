@@ -17,19 +17,24 @@ const ReviewSchema = z.object({
   finish_quality: z.number().min(1).max(10),
   finish_intensity: z.number().min(1).max(10),
 
+  overall_score: z.number().min(1).max(10),
+
   brew: z.nativeEnum(Brew),
-  notes: z.string().optional(),
+  flavor_notes: z.string().optional(),
 });
 
 const CafeReview = ReviewSchema.extend({
   cafeId: z.string(),
-  type: z.literal("cafe")
+  type: z.literal("cafe"),
 });
 
 const HomeReview = ReviewSchema.extend({
   coffeeId: z.string(),
-  type: z.literal("home")
+  type: z.literal("home"),
 });
 
-export const CreateReviewInput = z.discriminatedUnion("type", [CafeReview, HomeReview])
+export const CreateReviewInput = z.discriminatedUnion("type", [
+  CafeReview,
+  HomeReview,
+]);
 export type CreateReviewInput = z.infer<typeof CreateReviewInput>;
