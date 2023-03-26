@@ -22,6 +22,7 @@ const Home: NextPage = () => {
     setStep((prev) => (prev === steps.length - 1 ? prev : prev + 1));
   const decrementStep = () => setStep((prev) => (prev === 0 ? 0 : prev - 1));
   const stepName = steps[step] ?? "Unknown";
+
   return (
     <div className="mx-auto mt-[10%] flex flex-col items-center space-y-4">
       <Meter maxValue={steps.length} value={step + 1} />
@@ -51,14 +52,10 @@ type PropertyFormProps = {
   fromLeft: boolean;
 };
 const variants = {
-  fromLeft: {
-    x: -10,
+  hidden: (fromLeft: boolean) => ({
+    x: fromLeft ? -10 : 10,
     opacity: 0,
-  },
-  fromRight: {
-    x: 10,
-    opacity: 0,
-  },
+  }),
   visible: {
     x: 0,
     opacity: 1,
@@ -66,22 +63,22 @@ const variants = {
 };
 const PropertyForm = (props: PropertyFormProps) => {
   return (
-    <motion.div
-      key={props.label}
-      className="mt-4 space-y-2 rounded border-2 border-yellow-100 p-8"
-      variants={variants}
-      initial={props.fromLeft ? "fromLeft" : "fromRight"}
-      exit={props.fromLeft ? "fromRight" : "fromLeft"}
-      animate="visible"
-    >
-      <motion.h1 className="text-center font-serif text-lg">
+    <div className="mt-4 space-y-2 p-8">
+      <motion.h1
+        key={props.label}
+        className="text-center font-serif text-xl font-semibold"
+        variants={variants}
+        custom={props.fromLeft}
+        initial={"hidden"}
+        animate="visible"
+      >
         {props.label}
       </motion.h1>
       <form className="space-y-3">
-        <RatingInput label="Quality" />
-        <RatingInput label="Intensity" />
+        <RatingInput label="Quality" key={`${props.label}Quality`} />
+        <RatingInput label="Intensity" key={`${props.label}Intensity`} />
       </form>
-    </motion.div>
+    </div>
   );
 };
 type RatingInputProps = {
@@ -95,8 +92,9 @@ const RatingInput = (props: RatingInputProps) => {
     <div className="mx-auto w-fit space-y-2 rounded border-2 border-yellow-700 p-6">
       <h2 className="text-center font-serif text-xl">{props.label}</h2>
       <motion.div
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: isIncreasing ? 10 : -10 }}
+        initial={{ opacity: 0, y: isIncreasing ? -10 : 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: isIncreasing ? 10 : -10 }}
         key={value[0]}
       >
         <h2 className="text-center font-serif text-3xl font-bold">{value}</h2>
