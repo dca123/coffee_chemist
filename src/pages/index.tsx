@@ -1,35 +1,43 @@
 import { type NextPage } from "next";
-import type { Control, FieldPath } from "react-hook-form";
-import { useController, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { trpc } from "../utils/trpc";
-import { CreateReviewInput } from "../server/schema/review";
-import dayjs from "dayjs";
-import { SubmitButton } from "../components/SubmitButton";
-import Link from "next/link";
-import type { Cafe } from "@prisma/client";
-import { Brew } from "@prisma/client";
-import { DevTool } from "@hookform/devtools";
-import clsx from "clsx";
 import { useState } from "react";
-import { Listbox, RadioGroup } from "@headlessui/react";
 import * as Slider from "@radix-ui/react-slider";
-import * as Progress from "@radix-ui/react-progress";
-
+import { motion } from "framer-motion";
 import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/solid";
-import { Meter } from "../components/Meter";
+import clsx from "clsx";
+import type { AriaMeterProps } from "react-aria";
+import { useMeter } from "react-aria";
+
+const steps = [
+  "Aroma",
+  "Acidity",
+  "Sweetness",
+  "Body",
+  "Finish",
+  "Overall",
+] as const;
 
 const Home: NextPage = () => {
+  const [step, setStep] = useState(0);
+  const incrementStep = () =>
+    setStep((prev) => (prev === steps.length - 1 ? prev : prev + 1));
+  const decrementStep = () => setStep((prev) => (prev === 0 ? 0 : prev - 1));
+  const stepName = steps[step] ?? "Unknown";
   return (
-    <div className="mx-auto space-y-4">
-      <Meter />
-      <PropertyForm label="Aroma" />
+    <div className="mx-auto mt-[10%] flex flex-col items-center space-y-4">
+      <Meter maxValue={steps.length} value={step + 1} />
+      <PropertyForm label={stepName} fromLeft={false} />
       <div className="flex justify-center space-x-3">
-        <button className="flex items-center space-x-3 rounded border-2 border-amber-900 py-1 px-4 focus:outline-none focus:ring-2 focus:ring-yellow-700">
+        <button
+          className="flex items-center space-x-3 rounded border-2 border-amber-900 py-1 px-4 focus:outline-none focus:ring-1 focus:ring-yellow-700"
+          onClick={decrementStep}
+        >
           <ArrowLeftIcon className="h-4 w-4" />
           <p>Previous</p>
         </button>
-        <button className="flex items-center space-x-3 rounded border-2 border-amber-900 py-1 px-4 focus:outline-none focus:ring-2 focus:ring-yellow-700">
+        <button
+          className="flex items-center space-x-3 rounded border-2 border-amber-900 py-1 px-4 focus:outline-none focus:ring-1 focus:ring-yellow-700"
+          onClick={incrementStep}
+        >
           <p>Next</p>
           <ArrowRightIcon className="h-4 w-4" />
         </button>
@@ -39,17 +47,41 @@ const Home: NextPage = () => {
 };
 
 type PropertyFormProps = {
-  label: "Aroma" | "Flavor" | "Acidity" | "Body" | "Sweetness";
+  label: string;
+  fromLeft: boolean;
+};
+const variants = {
+  fromLeft: {
+    x: -10,
+    opacity: 0,
+  },
+  fromRight: {
+    x: 10,
+    opacity: 0,
+  },
+  visible: {
+    x: 0,
+    opacity: 1,
+  },
 };
 const PropertyForm = (props: PropertyFormProps) => {
   return (
-    <div className="space-y- mt-4">
-      <h1 className="text-center font-serif text-lg">{props.label}</h1>
+    <motion.div
+      key={props.label}
+      className="mt-4 space-y-2 rounded border-2 border-yellow-100 p-8"
+      variants={variants}
+      initial={props.fromLeft ? "fromLeft" : "fromRight"}
+      exit={props.fromLeft ? "fromRight" : "fromLeft"}
+      animate="visible"
+    >
+      <motion.h1 className="text-center font-serif text-lg">
+        {props.label}
+      </motion.h1>
       <form className="space-y-3">
         <RatingInput label="Quality" />
         <RatingInput label="Intensity" />
       </form>
-    </div>
+    </motion.div>
   );
 };
 type RatingInputProps = {
@@ -57,15 +89,31 @@ type RatingInputProps = {
 };
 const RatingInput = (props: RatingInputProps) => {
   const [value, setValue] = useState([5]);
+  const [isIncreasing, setIsIncreasing] = useState(false);
 
   return (
     <div className="mx-auto w-fit space-y-2 rounded border-2 border-yellow-700 p-6">
       <h2 className="text-center font-serif text-xl">{props.label}</h2>
-      <h2 className="text-center font-serif text-3xl font-bold">{value}</h2>
+      <motion.div
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: isIncreasing ? 10 : -10 }}
+        key={value[0]}
+      >
+        <h2 className="text-center font-serif text-3xl font-bold">{value}</h2>
+      </motion.div>
       <Slider.Root
         className="relative mx-auto flex h-5 w-[200px] touch-none select-none items-center"
         value={value}
-        onValueChange={(values) => setValue(values)}
+        onValueChange={(values) => {
+          setValue((prev) => {
+            if (prev[0]! < values[0]!) {
+              setIsIncreasing(true);
+            } else {
+              setIsIncreasing(false);
+            }
+            return values;
+          });
+        }}
         max={10}
         step={1}
         aria-label="Volume"
@@ -75,6 +123,42 @@ const RatingInput = (props: RatingInputProps) => {
         </Slider.Track>
         <Slider.Thumb className="hover:bg-violet3 block h-5 w-5 rounded-[10px] bg-white shadow-[0_2px_10px] shadow-amber-900 focus:shadow-[0_0_0_5px] focus:shadow-amber-900 focus:outline-none" />
       </Slider.Root>
+    </div>
+  );
+};
+
+export const Meter = (props: AriaMeterProps) => {
+  const {
+    label,
+    showValueLabel = !!label,
+    value = 50,
+    minValue = 0,
+    maxValue = 100,
+  } = props;
+  const { meterProps, labelProps } = useMeter(props);
+
+  // Calculate the width of the progress bar as a percentage
+  const percentage = (value - minValue) / (maxValue - minValue);
+  const barWidth = `${Math.round(percentage * 100)}%`;
+  console.log({
+    value,
+    minValue,
+    maxValue,
+    barWidth,
+  });
+  return (
+    <div {...meterProps} style={{ width: 200 }}>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        {label && <span {...labelProps}>{label}</span>}
+        {showValueLabel && <span>{meterProps["aria-valuetext"]}</span>}
+      </div>
+      <div className="h-2 rounded-full bg-yellow-100">
+        <motion.div
+          className={clsx("h-2 rounded-full bg-amber-800")}
+          style={{ width: barWidth }}
+          animate={{ width: barWidth }}
+        />
+      </div>
     </div>
   );
 };
