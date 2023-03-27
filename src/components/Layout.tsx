@@ -35,7 +35,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className="my-8 h-screen">
+    <div className="h-screen py-8">
       <Head>
         <title>Coffee Chemist</title>
       </Head>

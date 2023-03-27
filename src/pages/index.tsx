@@ -1,11 +1,11 @@
 import { type NextPage } from "next";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import * as Slider from "@radix-ui/react-slider";
 import { motion } from "framer-motion";
 import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import type { AriaMeterProps } from "react-aria";
-import { useMeter } from "react-aria";
+import type { AriaMeterProps, AriaTextFieldProps } from "react-aria";
+import { useMeter, useTextField } from "react-aria";
 
 const steps = [
   "Aroma",
@@ -63,24 +63,61 @@ const variants = {
 };
 const PropertyForm = (props: PropertyFormProps) => {
   return (
-    <div className="mt-4 space-y-2 p-8">
-      <motion.h1
-        key={props.label}
-        className="text-center font-serif text-xl font-semibold"
-        variants={variants}
-        custom={props.fromLeft}
-        initial={"hidden"}
-        animate="visible"
-      >
-        {props.label}
-      </motion.h1>
-      <form className="space-y-3">
+    <div className="mt-4 p-8">
+      <form className="space-y-8">
+        <motion.h1
+          key={props.label}
+          className="text-center font-serif text-xl font-semibold"
+          variants={variants}
+          custom={props.fromLeft}
+          initial={"hidden"}
+          animate="visible"
+        >
+          {props.label}
+        </motion.h1>
         <RatingInput label="Quality" key={`${props.label}Quality`} />
         <RatingInput label="Intensity" key={`${props.label}Intensity`} />
+        <NotesInput key={`${props.label}Notes`} label="Notes" />
       </form>
     </div>
   );
 };
+const NotesInput = (props: AriaTextFieldProps) => {
+  const ref = useRef(null);
+  const { labelProps, inputProps, descriptionProps, errorMessageProps } =
+    useTextField(
+      {
+        ...props,
+        inputElementType: "textarea",
+      },
+      ref
+    );
+
+  return (
+    <div className="flex flex-col space-y-2">
+      <label {...labelProps} className="text-center font-serif text-xl">
+        {props.label}
+      </label>
+      <textarea
+        {...inputProps}
+        ref={ref}
+        className="rounded p-2 font-serif text-2xl"
+        rows={2}
+      />
+      {props.description && (
+        <div {...descriptionProps} style={{ fontSize: 12 }}>
+          {props.description}
+        </div>
+      )}
+      {props.errorMessage && (
+        <div {...errorMessageProps} style={{ color: "red", fontSize: 12 }}>
+          {props.errorMessage}
+        </div>
+      )}
+    </div>
+  );
+};
+
 type RatingInputProps = {
   label: "Quality" | "Intensity";
 };
@@ -89,16 +126,17 @@ const RatingInput = (props: RatingInputProps) => {
   const [isIncreasing, setIsIncreasing] = useState(false);
 
   return (
-    <div className="mx-auto w-fit space-y-2 rounded border-2 border-yellow-700 p-6">
+    <div className="mx-auto w-fit space-y-2 ">
       <h2 className="text-center font-serif text-xl">{props.label}</h2>
-      <motion.div
+      <motion.h2
+        className="text-center font-serif text-3xl font-bold"
         initial={{ opacity: 0, y: isIncreasing ? -10 : 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: isIncreasing ? 10 : -10 }}
         key={value[0]}
       >
-        <h2 className="text-center font-serif text-3xl font-bold">{value}</h2>
-      </motion.div>
+        {value}
+      </motion.h2>
       <Slider.Root
         className="relative mx-auto flex h-5 w-[200px] touch-none select-none items-center"
         value={value}
