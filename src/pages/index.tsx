@@ -18,15 +18,21 @@ const steps = [
 
 const Home: NextPage = () => {
   const [step, setStep] = useState(0);
-  const incrementStep = () =>
+  const [incrementing, setIncrementing] = useState(false);
+  const incrementStep = () => {
     setStep((prev) => (prev === steps.length - 1 ? prev : prev + 1));
-  const decrementStep = () => setStep((prev) => (prev === 0 ? 0 : prev - 1));
+    setIncrementing(true);
+  };
+  const decrementStep = () => {
+    setStep((prev) => (prev === 0 ? 0 : prev - 1));
+    setIncrementing(false);
+  };
   const stepName = steps[step] ?? "Unknown";
 
   return (
     <div className="mx-auto mt-[10%] flex flex-col items-center space-y-4">
       <Meter maxValue={steps.length} value={step + 1} />
-      <PropertyForm label={stepName} fromLeft={false} />
+      <PropertyForm label={stepName} isIncrementing={incrementing} />
       <div className="flex justify-center space-x-3">
         <button
           className="flex items-center space-x-3 rounded border-2 border-amber-900 py-1 px-4 focus:outline-none focus:ring-1 focus:ring-yellow-700"
@@ -49,11 +55,11 @@ const Home: NextPage = () => {
 
 type PropertyFormProps = {
   label: string;
-  fromLeft: boolean;
+  isIncrementing: boolean;
 };
 const variants = {
-  hidden: (fromLeft: boolean) => ({
-    x: fromLeft ? -10 : 10,
+  hidden: (isIncrementing: boolean) => ({
+    x: isIncrementing ? -10 : 10,
     opacity: 0,
   }),
   visible: {
@@ -69,7 +75,7 @@ const PropertyForm = (props: PropertyFormProps) => {
           key={props.label}
           className="text-center font-serif text-xl font-semibold"
           variants={variants}
-          custom={props.fromLeft}
+          custom={props.isIncrementing}
           initial={"hidden"}
           animate="visible"
         >
@@ -101,7 +107,7 @@ const NotesInput = (props: AriaTextFieldProps) => {
       <textarea
         {...inputProps}
         ref={ref}
-        className="rounded p-2 font-serif text-2xl"
+        className="rounded p-2 font-serif text-xl outline-orange-800 "
         rows={2}
       />
       {props.description && (
@@ -122,7 +128,7 @@ type RatingInputProps = {
   label: "Quality" | "Intensity";
 };
 const RatingInput = (props: RatingInputProps) => {
-  const [value, setValue] = useState([5]);
+  const [value, setValue] = useState<[number]>([5]);
   const [isIncreasing, setIsIncreasing] = useState(false);
 
   return (
@@ -140,12 +146,12 @@ const RatingInput = (props: RatingInputProps) => {
       <Slider.Root
         className="relative mx-auto flex h-5 w-[200px] touch-none select-none items-center"
         value={value}
-        onValueChange={(values) => {
+        onValueChange={(values: [number]) => {
           setValue((prev) => {
-            if (prev[0]! < values[0]!) {
-              setIsIncreasing(true);
-            } else {
+            if (prev[0] < values[0]) {
               setIsIncreasing(false);
+            } else {
+              setIsIncreasing(true);
             }
             return values;
           });
