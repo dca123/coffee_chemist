@@ -156,15 +156,15 @@ const BrewForm = () => {
       </motion.h1>
       <div>
         <RadioGroup.Root
-          className="flex w-full flex-col gap-2"
+          className="flex w-full select-none flex-col  gap-2"
           value={reviewType}
           onValueChange={(val) => setReviewType(val as Brew)}
         >
           {Object.entries(Brew).map(([key, value]) => (
-            <div key={key} className="relative">
+            <div key={key} className="relative ">
               <RadioGroup.Item
                 value={value}
-                className="flex w-full select-none justify-center px-2  py-1 font-serif text-2xl"
+                className="flex w-full justify-center px-2  py-1 font-serif text-2xl aria-pressed:bg-red-500"
               >
                 <label>{value}</label>
               </RadioGroup.Item>
