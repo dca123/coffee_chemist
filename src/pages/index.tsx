@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { type NextPage } from "next";
 import { useRef, useState } from "react";
 import * as Slider from "@radix-ui/react-slider";
