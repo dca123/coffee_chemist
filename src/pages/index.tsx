@@ -17,7 +17,7 @@ import { create } from "zustand";
 import { trpc } from "../utils/trpc";
 import * as Tabs from "@radix-ui/react-tabs";
 import * as Select from "@radix-ui/react-select";
-
+import * as RadioGroup from "@radix-ui/react-radio-group";
 const steps = [
   "aroma",
   "acidity",
@@ -25,6 +25,8 @@ const steps = [
   "body",
   "finish",
   "overall",
+  "brew",
+  "location",
 ] as const;
 
 type Review = {
@@ -67,121 +69,69 @@ const useReviewStore = create<ReviewState>((set) => {
   };
 });
 
-const Home: NextPage = () => {
-  const [step, setStep] = useState(0);
-  const [incrementing, setIncrementing] = useState(false);
-  const incrementStep = () => {
-    setStep((prev) => (prev === steps.length - 1 ? prev : prev + 1));
-    setIncrementing(true);
-  };
-  const decrementStep = () => {
-    setStep((prev) => (prev === 0 ? 0 : prev - 1));
-    setIncrementing(false);
-  };
-  const stepName = steps[step];
-  const mutation = trpc.review.create.useMutation();
+interface StepState {
+  step: number;
+  isIncrementing: boolean;
+  incrementStep: () => void;
+  decrementStep: () => void;
+}
+const useStepStore = create<StepState>((set, get) => ({
+  step: 0,
+  isIncrementing: true,
+  incrementStep: () =>
+    set((state) => ({
+      step: state.step === steps.length - 1 ? state.step : state.step + 1,
+    })),
+  decrementStep: () =>
+    set((state) => ({
+      step: state.step === 0 ? 0 : state.step - 1,
+    })),
+}));
 
-  if (stepName === undefined) {
-    throw new Error("Undefined Step !");
-  }
-  const store = useReviewStore();
+const Home: NextPage = () => {
+  const step = useStepStore((store) => store.step);
 
   return (
-    <div className="mx-auto mt-[10%] flex flex-col items-center space-y-4">
+    <div className="mx-auto mt-[10%] flex h-full flex-col items-center space-y-4">
       <Meter
         maxValue={steps.length}
         value={step + 1}
         label="Progress"
         showValueLabel={false}
       />
-      <Form<{
-        quality: [number];
-        intensity: [number];
-        notes: string;
-      }>
-        key={stepName}
-        onSubmit={(data) => {
-          console.log(data);
-          store.setReview(stepName, {
-            quality: data.quality[0],
-            intensity: data.intensity[0],
-            notes: data.notes,
-          });
-          if (stepName === "overall") {
-            console.log("done");
-            mutation.mutate({
-              acidity_intensity: store.acidity.intensity,
-              acidity_notes: store.acidity.notes,
-              acidity_quality: store.acidity.quality,
-              aroma_intensity: store.aroma.intensity,
-              aroma_notes: store.aroma.notes,
-              aroma_quality: store.aroma.quality,
-              body_intensity: store.body.intensity,
-              body_notes: store.body.notes,
-              body_quality: store.body.quality,
-              finish_intensity: store.finish.intensity,
-              finish_notes: store.finish.notes,
-              finish_quality: store.finish.quality,
-              overall_score: 0,
-              sweetness_intensity: store.sweetness.intensity,
-              sweetness_notes: store.sweetness.notes,
-              sweetness_quality: store.sweetness.quality,
-              type: "cafe",
-              cafeId: "sss",
-              brew: "Coldbrew",
-            });
-          } else {
-            incrementStep();
-          }
-        }}
-      >
-        {({ submit }) => (
-          <>
-            {step < steps.length - 1 ? (
-              <PropertyForm label={stepName} isIncrementing={incrementing} />
-            ) : (
-              <OverallForm variants={variants} />
-            )}
-
-            <div className="flex justify-center space-x-3">
-              {step > 0 ? (
-                <button
-                  className="flex items-center space-x-3 rounded border-2 border-amber-900 py-1 px-4 focus:outline-none focus:ring-1 focus:ring-yellow-700"
-                  onClick={decrementStep}
-                >
-                  <ArrowLeftIcon className="h-4 w-4" />
-                  <p>Previous</p>
-                </button>
-              ) : null}
-              {step < steps.length - 1 ? (
-                <button
-                  className="flex items-center space-x-3 rounded border-2 border-amber-900 py-1 px-4 focus:outline-none focus:ring-1 focus:ring-yellow-700"
-                  onClick={submit}
-                >
-                  <p>Next</p>
-                  <ArrowRightIcon className="h-4 w-4" />
-                </button>
-              ) : (
-                <button
-                  className="flex items-center space-x-3 rounded border-2 border-amber-900 py-1 px-4 focus:outline-none focus:ring-1 focus:ring-yellow-700"
-                  onClick={submit}
-                >
-                  <p>Submit</p>
-                  <PaperAirplaneIcon className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          </>
-        )}
-      </Form>
+      <FormWrapper />
     </div>
   );
 };
-
-type PropertyFormProps = {
-  label: string;
-  isIncrementing: boolean;
+const FormWrapper = () => {
+  const step = useStepStore((store) => store.step);
+  const stepName = steps[step];
+  switch (stepName) {
+    case "aroma":
+    case "acidity":
+    case "sweetness":
+    case "body":
+    case "finish":
+      return <PropertyForm />;
+    case "overall":
+      return <OverallForm />;
+    case "brew":
+      return <BrewForm />;
+    case "location":
+      return <LocationForm />;
+    default:
+      return null;
+  }
 };
+
+const BrewForm = () => {
+  return <>Brew Form</>;
+};
+
+const LocationForm = () => {
+  return <>Brew Form</>;
+};
+
 const variants = {
   hidden: (isIncrementing: boolean) => ({
     x: isIncrementing ? -10 : 10,
@@ -192,37 +142,42 @@ const variants = {
     opacity: 1,
   },
 };
-const PropertyForm = (props: PropertyFormProps) => {
-  const capitalizedLabel =
-    props.label.charAt(0).toUpperCase() + props.label.slice(1);
+const PropertyForm = () => {
+  const { step, isIncrementing, increment, decrement } = useStepStore(
+    (store) => ({
+      step: store.step,
+      isIncrementing: store.isIncrementing,
+      increment: store.incrementStep,
+      decrement: store.decrementStep,
+    })
+  );
+  const label = steps[step] as string;
+
+  const capitalizedLabel = label.charAt(0).toUpperCase() + label.slice(1);
   return (
-    <div className="mt-4 p-8">
+    <div className="mt-4 space-y-5 p-8">
       <form className="space-y-8">
         <motion.h1
-          key={props.label}
+          key={label}
           className="text-center font-serif text-xl font-semibold"
           variants={variants}
-          custom={props.isIncrementing}
+          custom={isIncrementing}
           initial={"hidden"}
           animate="visible"
         >
           {capitalizedLabel}
         </motion.h1>
 
-        <RatingInput
-          label="Quality"
-          key={`${props.label}Quality`}
-          name="quality"
-        />
+        <RatingInput label="Quality" key={`${label}Quality`} name="quality" />
         <RatingInput
           label="Intensity"
-          key={`${props.label}Intensity`}
+          key={`${label}Intensity`}
           name="intensity"
         />
         <Field name="notes">
           {({ value, setValue }) => (
             <NotesInput
-              key={`${props.label}Notes`}
+              key={`${label}Notes`}
               label="Notes"
               value={value}
               onChange={(val) => setValue(val)}
@@ -230,6 +185,23 @@ const PropertyForm = (props: PropertyFormProps) => {
           )}
         </Field>
       </form>
+      <div className="flex justify-center space-x-3">
+        <button
+          className="flex items-center space-x-3 rounded border-2 border-amber-200 py-1 px-4 focus:outline-none focus:ring-1 focus:ring-yellow-700"
+          onClick={decrement}
+        >
+          <ArrowLeftIcon className="h-4 w-4" />
+          <p className="font-serif text-lg">Previous</p>
+        </button>
+
+        <button
+          className="flex items-center space-x-3 rounded border-2 border-amber-200 py-1 px-4 focus:outline-none focus:ring-1 focus:ring-yellow-700"
+          onClick={increment}
+        >
+          <p className="font-serif text-lg">Next</p>
+          <ArrowRightIcon className="h-4 w-4" />
+        </button>
+      </div>
     </div>
   );
 };
@@ -253,7 +225,7 @@ const NotesInput = (props: AriaTextFieldProps) => {
       <textarea
         {...inputProps}
         ref={ref}
-        className="rounded p-2 font-serif text-xl outline-orange-800 "
+        className="rounded bg-amber-50 p-2 font-serif text-xl outline-orange-800"
         rows={2}
       />
 
@@ -443,7 +415,8 @@ function BrewSelect({}) {
   );
 }
 
-function OverallForm({ variants }) {
+function OverallForm() {
+  const [reviewType, setReviewType] = useState<"cafe" | "home">("cafe");
   return (
     <div className="mt-4 space-y-4 p-8">
       <motion.h1
@@ -455,8 +428,39 @@ function OverallForm({ variants }) {
         Overall
       </motion.h1>
       <RatingInput label="Score" name="score" />
-      <BrewSelect />
-      <ReviewLocationPanel />
+      {/* <BrewSelect />
+      <RadioGroup.Root
+        className="flex flex-col gap-2"
+        value={reviewType}
+        onValueChange={(val) => setReviewType(val as "cafe" | "home")}
+      >
+        <div className="flex items-center">
+          <RadioGroup.Item value="home">
+            <RadioGroup.Indicator>
+              {reviewType === "home" ? (
+                <motion.div
+                  layoutId="reviewType"
+                  className="h-2 w-2 rounded-full bg-amber-700"
+                />
+              ) : null}
+            </RadioGroup.Indicator>
+            <label className="ml-2 font-serif">Home</label>
+          </RadioGroup.Item>
+        </div>
+        <div className="flex items-center">
+          <RadioGroup.Item value="cafe">
+            <RadioGroup.Indicator>
+              {reviewType === "cafe" ? (
+                <motion.div
+                  layoutId="reviewType"
+                  className="h-2 w-2 rounded-full bg-amber-700"
+                />
+              ) : null}
+            </RadioGroup.Indicator>
+            <label className="ml-2 font-serif">Cafe</label>
+          </RadioGroup.Item>
+        </div>
+      </RadioGroup.Root> */}
     </div>
   );
 }

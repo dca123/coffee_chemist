@@ -40,7 +40,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <title>Coffee Chemist</title>
       </Head>
       <Navbar />
-      <div className="container mx-auto">{children}</div>
+      <div className="container mx-auto h-full">{children}</div>
     </div>
   );
 };
