@@ -1,7 +1,7 @@
 import { type NextPage } from "next";
 import { useRef, useState } from "react";
 import * as Slider from "@radix-ui/react-slider";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRightIcon,
   ArrowLeftIcon,
@@ -18,6 +18,7 @@ import { trpc } from "../utils/trpc";
 import * as Tabs from "@radix-ui/react-tabs";
 import * as Select from "@radix-ui/react-select";
 import * as RadioGroup from "@radix-ui/react-radio-group";
+import { Brew } from "@prisma/client";
 const steps = [
   "aroma",
   "acidity",
@@ -75,8 +76,8 @@ interface StepState {
   incrementStep: () => void;
   decrementStep: () => void;
 }
-const useStepStore = create<StepState>((set, get) => ({
-  step: 0,
+const useStepStore = create<StepState>((set) => ({
+  step: 6,
   isIncrementing: true,
   incrementStep: () =>
     set((state) => ({
@@ -125,7 +126,60 @@ const FormWrapper = () => {
 };
 
 const BrewForm = () => {
-  return <>Brew Form</>;
+  const [reviewType, setReviewType] = useState<Brew>("Coldbrew");
+  const { step, isIncrementing } = useStepStore((store) => ({
+    step: store.step,
+    isIncrementing: store.isIncrementing,
+  }));
+  const label = steps[step] as string;
+  const capitalizedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+  const variant = {
+    initial: {
+      opacity: 0.5,
+    },
+    animate: {
+      opacity: 1,
+    },
+  };
+  return (
+    <div className="mt-4 space-y-5 p-8">
+      <motion.h1
+        key={label}
+        className="text-center font-serif text-xl font-semibold"
+        variants={variants}
+        custom={isIncrementing}
+        initial={"hidden"}
+        animate="visible"
+      >
+        {capitalizedLabel}
+      </motion.h1>
+      <div>
+        <RadioGroup.Root
+          className="flex w-full flex-col gap-2"
+          value={reviewType}
+          onValueChange={(val) => setReviewType(val as Brew)}
+        >
+          {Object.entries(Brew).map(([key, value]) => (
+            <div key={key} className="relative">
+              <RadioGroup.Item
+                value={value}
+                className="flex w-full select-none justify-center px-2  py-1 font-serif text-2xl"
+              >
+                <label>{value}</label>
+              </RadioGroup.Item>
+              {reviewType === value ? (
+                <motion.div
+                  className="absolute bottom-0 h-full w-full rounded border border-amber-700"
+                  layoutId="border"
+                />
+              ) : null}
+            </div>
+          ))}
+        </RadioGroup.Root>
+      </div>
+      <ButtonBar onIncrement={() => {}} onDecrement={() => {}} />
+    </div>
+  );
 };
 
 const LocationForm = () => {
@@ -143,14 +197,10 @@ const variants = {
   },
 };
 const PropertyForm = () => {
-  const { step, isIncrementing, increment, decrement } = useStepStore(
-    (store) => ({
-      step: store.step,
-      isIncrementing: store.isIncrementing,
-      increment: store.incrementStep,
-      decrement: store.decrementStep,
-    })
-  );
+  const { step, isIncrementing } = useStepStore((store) => ({
+    step: store.step,
+    isIncrementing: store.isIncrementing,
+  }));
   const label = steps[step] as string;
 
   const capitalizedLabel = label.charAt(0).toUpperCase() + label.slice(1);
@@ -185,23 +235,7 @@ const PropertyForm = () => {
           )}
         </Field>
       </form>
-      <div className="flex justify-center space-x-3">
-        <button
-          className="flex items-center space-x-3 rounded border-2 border-amber-200 py-1 px-4 focus:outline-none focus:ring-1 focus:ring-yellow-700"
-          onClick={decrement}
-        >
-          <ArrowLeftIcon className="h-4 w-4" />
-          <p className="font-serif text-lg">Previous</p>
-        </button>
-
-        <button
-          className="flex items-center space-x-3 rounded border-2 border-amber-200 py-1 px-4 focus:outline-none focus:ring-1 focus:ring-yellow-700"
-          onClick={increment}
-        >
-          <p className="font-serif text-lg">Next</p>
-          <ArrowRightIcon className="h-4 w-4" />
-        </button>
-      </div>
+      <ButtonBar onDecrement={() => {}} onIncrement={() => {}} />
     </div>
   );
 };
@@ -323,6 +357,7 @@ export const Meter = (props: AriaMeterProps) => {
 };
 
 export default Home;
+
 function ReviewLocationPanel() {
   const [tab, setTab] = useState<"cafe" | "home">("cafe");
   return (
@@ -416,51 +451,24 @@ function BrewSelect({}) {
 }
 
 function OverallForm() {
-  const [reviewType, setReviewType] = useState<"cafe" | "home">("cafe");
+  const { isIncrementing } = useStepStore((store) => ({
+    isIncrementing: store.isIncrementing,
+  }));
   return (
     <div className="mt-4 space-y-4 p-8">
       <motion.h1
         className="text-center font-serif text-xl font-semibold"
-        variants={variants} // custom={props.isIncrementing}
+        variants={variants}
+        custom={isIncrementing}
         initial={"hidden"}
         animate="visible"
       >
         Overall
       </motion.h1>
       <RatingInput label="Score" name="score" />
-      {/* <BrewSelect />
-      <RadioGroup.Root
-        className="flex flex-col gap-2"
-        value={reviewType}
-        onValueChange={(val) => setReviewType(val as "cafe" | "home")}
-      >
-        <div className="flex items-center">
-          <RadioGroup.Item value="home">
-            <RadioGroup.Indicator>
-              {reviewType === "home" ? (
-                <motion.div
-                  layoutId="reviewType"
-                  className="h-2 w-2 rounded-full bg-amber-700"
-                />
-              ) : null}
-            </RadioGroup.Indicator>
-            <label className="ml-2 font-serif">Home</label>
-          </RadioGroup.Item>
-        </div>
-        <div className="flex items-center">
-          <RadioGroup.Item value="cafe">
-            <RadioGroup.Indicator>
-              {reviewType === "cafe" ? (
-                <motion.div
-                  layoutId="reviewType"
-                  className="h-2 w-2 rounded-full bg-amber-700"
-                />
-              ) : null}
-            </RadioGroup.Indicator>
-            <label className="ml-2 font-serif">Cafe</label>
-          </RadioGroup.Item>
-        </div>
-      </RadioGroup.Root> */}
+      <NotesInput label="Notes" />
+      <ButtonBar onDecrement={() => {}} onIncrement={() => {}} />
+      {/* <BrewSelect /> */}
     </div>
   );
 }
@@ -479,5 +487,46 @@ function SelectItem(props: SelectItemProps) {
         <CheckIcon />
       </Select.ItemIndicator>
     </Select.Item>
+  );
+}
+
+type ButtonBarProps = {
+  onDecrement: () => void;
+  onIncrement: () => void;
+};
+function ButtonBar(props: ButtonBarProps) {
+  const { incrementStep, decrementStep } = useStepStore((state) => ({
+    incrementStep: state.incrementStep,
+    decrementStep: state.decrementStep,
+  }));
+
+  const handleIncrement = () => {
+    props.onIncrement();
+    incrementStep();
+  };
+
+  const handleDecrement = () => {
+    props.onDecrement();
+    decrementStep();
+  };
+
+  return (
+    <div className="flex justify-center space-x-3">
+      <button
+        className="flex items-center space-x-3 rounded border-2 border-amber-200 py-1 px-4 focus:outline-none focus:ring-1 focus:ring-yellow-700"
+        onClick={handleDecrement}
+      >
+        <ArrowLeftIcon className="h-4 w-4" />
+        <p className="font-serif text-lg">Previous</p>
+      </button>
+
+      <button
+        className="flex items-center space-x-3 rounded border-2 border-amber-200 py-1 px-4 focus:outline-none focus:ring-1 focus:ring-yellow-700"
+        onClick={handleIncrement}
+      >
+        <p className="font-serif text-lg">Next</p>
+        <ArrowRightIcon className="h-4 w-4" />
+      </button>
+    </div>
   );
 }
